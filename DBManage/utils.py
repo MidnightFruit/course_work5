@@ -6,6 +6,11 @@ from APImanger.HeadHunterAPI import HeadHunterAPI
 
 
 def format_companies(data: dict):
+    """
+    Форматирует данные компаний для записи в БД
+    :param data: Входные данные
+    :return:
+    """
     result = []
     for company_name, company_key in data.items():
         url = f"https://api.hh.ru/employers/{company_key}"
@@ -17,6 +22,11 @@ def format_companies(data: dict):
 
 
 def format_vacancy(data: list[dict[str, Any]]):
+    """
+    Форматируют данные с вакансиями для записи в БД
+    :param data: Вакансии
+    :return: список форматированных вакансий
+    """
     result = []
     for vacancy in data:
         temp_dict = {"vacancy_id": vacancy['id'], "company_id": vacancy['employer']['id'],

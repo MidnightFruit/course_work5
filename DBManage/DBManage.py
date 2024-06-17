@@ -25,7 +25,7 @@ class DBManage:
         self.conn.autocommit = True
         self.cur = self.conn.cursor()
         self.cur.execute("""
-        CREATE TABLE IF NOT EXISTS companies 
+        CREATE TABLE IF NOT EXISTS default.json 
         (company_id INT NOT NULL,
         company_name VARCHAR(255) NOT NULL,
         company_url TEXT NOT NULL,
@@ -53,7 +53,7 @@ class DBManage:
         companies = format_companies(company_to_find)
 
         for company in companies:
-            self.cur.execute(f"""INSERT INTO companies (company_id, company_name, company_url, description)
+            self.cur.execute(f"""INSERT INTO default.json (company_id, company_name, company_url, description)
                      VALUES (%s, %s, %s, %s)""",
                         (company['company_id'], company['company_name'], company['company_url'],
                          company['description']))
