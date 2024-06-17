@@ -14,7 +14,7 @@ class HeadHunterAPI(IApi.IApi):
         self.urls = {"vacancies": "https://api.hh.ru/vacancies"}
         self.__data = []
 
-    def load_data(self, search="", page=0, per_page=1, company_id=None):
+    def load_data(self, search: str = "", page: int = 0, per_page: int = 1, company_id: str = None):
         """
         Метод загрузки данных с сайта HH.ru
         :param company_id: id компании чьи вакансии требуется найти.
@@ -30,14 +30,18 @@ class HeadHunterAPI(IApi.IApi):
             self.__data.extend(self.vacancies.json()['items'])
             return self.vacancies.status_code
         else:
-            self.vacancies = requests.get(self.urls['vacancies'] + f'?employer_id={company_id}',
+            self.vacancies = requests.get(self.urls['vacancies'],
                                           params={"text": search, "only_with_salary": True, "page": page,
-                                                  "per_page": per_page, "currency": "RUR"})
-            self.__data.extend(self.vacancies.json()['items'])
+                                                  "per_page": per_page, "currency": "RUR", "employer_id": company_id})
+            if self.vacancies.status_code != 200:
+                print(f"Ошибка загрузки информации о вакансиях компании: {company_id}."
+                      f" Код ошибки: {self.vacancies.status_code}")
+            else:
+                self.__data.extend(self.vacancies.json()['items'])
             return self.vacancies.status_code
 
     @staticmethod
-    def find_companies(name, only_with_vacancies=True):
+    def find_companies(name: str, only_with_vacancies: bool = True):
         """
         Метод поиска работодателей
         :param name: описание по которому нужно сделать выборку.
