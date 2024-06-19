@@ -2,8 +2,6 @@ from typing import Any
 from configparser import ConfigParser
 import requests
 
-from APImanger.HeadHunterAPI import HeadHunterAPI
-
 
 def format_companies(data: dict):
     """

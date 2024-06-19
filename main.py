@@ -1,8 +1,6 @@
 import json
 import os
 from pprint import pprint
-
-from APImanger.HeadHunterAPI import HeadHunterAPI
 from DBManage.DBManage import DBManage
 from DBManage.utils import config
 
@@ -25,7 +23,8 @@ config_path = input("Введите название файла 'ini'")
 if len(config_path) == 0:
     config_path = 'database.ini'
 
-DataBase = DBManage(dbname=DBName, params=config(filename=config_path))
+DataBase = DBManage()
+DataBase.init_DB(dbname=DBName, params=config(filename=config_path))
 DataBase.load_companies_data(data)
 DataBase.load_vacancies_data(data)
 
