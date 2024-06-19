@@ -1,48 +1,49 @@
-from pprint import pprint
-
 import psycopg2
-from typing import Any
 from DBManage.utils import format_companies
 from APImanger.HeadHunterAPI import HeadHunterAPI
 
 
 class DBManage:
 
-    def __init__(self, dbname: str, params: dict):
+    def __init__(self):
+        self.conn = None
+        self.cur = None
+        pass
+
+    def init_DB(self, dbname: str, params: dict) -> None:
         """
-        Создаёт необходимые таблицы и базу данных с указанным именем
-        :param dbname:
-        :param params:
+            Создаёт необходимые таблицы и базу данных с указанным именем и подключается к ней
+            :param dbname:
+            :param params:
         """
-        self.dbname = dbname
         conn = psycopg2.connect(dbname='postgres', **params)
         conn.autocommit = True
         cur = conn.cursor()
-        cur.execute(f'DROP DATABASE IF EXISTS {self.dbname}')
-        cur.execute(f'CREATE DATABASE  {self.dbname}')
+        cur.execute(f'DROP DATABASE IF EXISTS {dbname}')
+        cur.execute(f'CREATE DATABASE  {dbname}')
         conn.close()
         self.conn = psycopg2.connect(dbname=dbname, **params)
         self.conn.autocommit = True
-        self.cur = self.conn.cursor()
+        self.cur = conn.cursor()
         self.cur.execute("""
-        CREATE TABLE IF NOT EXISTS default.json 
-        (company_id INT NOT NULL,
-        company_name VARCHAR(255) NOT NULL,
-        company_url TEXT NOT NULL,
-        description TEXT
-        )
-        """)
+               CREATE TABLE IF NOT EXISTS default.json 
+               (company_id INT NOT NULL,
+               company_name VARCHAR(255) NOT NULL,
+               company_url TEXT NOT NULL,
+               description TEXT
+               )
+               """)
 
-        self.cur.execute("""
-        CREATE TABLE IF NOT EXISTS vacancies (
-            vacancy_id INT NOT NULL,
-            vacancy_name VARCHAR(255) NOT NULL,
-            company_name VARCHAR(255) NOT NULL,
-            salary INT,
-            vacancy_url TEXT NOT NULL,
-            description TEXT
-        )
-        """)
+        cur.execute("""
+               CREATE TABLE IF NOT EXISTS vacancies (
+                   vacancy_id INT NOT NULL,
+                   vacancy_name VARCHAR(255) NOT NULL,
+                   company_name VARCHAR(255) NOT NULL,
+                   salary INT,
+                   vacancy_url TEXT NOT NULL,
+                   description TEXT
+               )
+               """)
 
     def load_companies_data(self, company_to_find: dict):
         """
@@ -54,9 +55,8 @@ class DBManage:
 
         for company in companies:
             self.cur.execute(f"""INSERT INTO default.json (company_id, company_name, company_url, description)
-                     VALUES (%s, %s, %s, %s)""",
-                        (company['company_id'], company['company_name'], company['company_url'],
-                         company['description']))
+                     VALUES (%s, %s, %s, %s)""", (company['company_id'], company['company_name'],
+                                                  company['company_url'], company['description']))
 
     def load_vacancies_data(self, companies: dict):
         """
@@ -72,8 +72,8 @@ class DBManage:
                 i += 1
         with self.conn.cursor() as cur:
             for vacancy in vacancies_finder.data:
-                cur.execute(f"""INSERT INTO vacancies (vacancy_id, vacancy_name, company_name, salary, vacancy_url, description)
-                         VALUES (%s, %s, %s, %s, %s, %s)""",
+                cur.execute(f"""INSERT INTO vacancies (vacancy_id, vacancy_name, company_name, salary, vacancy_url,
+                 description) VALUES (%s, %s, %s, %s, %s, %s)""",
                             (vacancy['id'], vacancy['name'], vacancy['employer']['name'], vacancy['salary']['from'],
                              vacancy['url'], vacancy['snippet']['requirement']))
 
